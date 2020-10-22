@@ -20,17 +20,19 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 ADD . /app
 
 # Expose app port here (update with your app port)
-EXPOSE 5000 22
+EXPOSE 5000 2222
 ENV PORT 5000
-ENV SSH_PORT 22
+ENV SSH_PORT 2222
 
-# TODO: Set up SSH
-# ENV SSH_PASSWD "root:Docker!"
-RUN yum install -y openssh openssh-server shadow-utils && yum clean all
-    # ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key && \
-    # ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key && \
-    # mkdir /var/run/sshd && \
-    # echo "$SSH_PASSWD" | chpasswd
+# Set up SSH
+ENV SSH_PASSWD "root:Docker!"
+RUN yum install -y openssh openssh-server shadow-utils && yum clean all && \
+    ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key && \
+    ssh-keygen -t ed25519 -f /etc/ssh/ssh_host_ed25519_key && \
+    ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key && \
+    ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key && \
+    mkdir /var/run/sshd 
+RUN echo "$SSH_PASSWD" | chpasswd
 
 COPY init.sh /usr/local/bin/
 RUN chmod u+x /usr/local/bin/init.sh
